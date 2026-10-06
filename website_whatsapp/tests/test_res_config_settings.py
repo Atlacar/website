@@ -1,9 +1,14 @@
 # Copyright 2025 Studio73 - Eugenio Micó <eugenio@studio73.es>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from odoo.tests import tagged
+
 from odoo.addons.base.tests.common import BaseCommon
 
 
+# post_install: at_install, partners created in setUpClass miss defaults of
+# modules loaded later (e.g. purchase_stock's NOT NULL res_partner.group_rfq).
+@tagged("post_install", "-at_install")
 class TestResConfigSettings(BaseCommon):
     @classmethod
     def setUpClass(cls):
