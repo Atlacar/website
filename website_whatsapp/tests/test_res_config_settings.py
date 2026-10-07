@@ -20,17 +20,25 @@ class TestResConfigSettings(BaseCommon):
             }
         )
 
+    def _as_admin(self, record):
+        # Website records are only writable by website editors/admins in 20
+        return record.with_user(self.env.ref("base.user_admin"))
+
     def test_compute_whatsapp_enabled(self):
-        self.assertFalse(self.config.whatsapp_enabled)
-        self.config.website_id.update({"whatsapp_number": "123456789"})
-        self.config.invalidate_recordset()
-        self.assertTrue(self.config.whatsapp_enabled)
-        self.website.update({"whatsapp_number": False})
-        self.config.invalidate_recordset()
-        self.assertFalse(self.config.whatsapp_enabled)
+        config = self._as_admin(self.config)
+        website = self._as_admin(self.website)
+        self.assertFalse(config.whatsapp_enabled)
+        website.update({"whatsapp_number": "123456789"})
+        config.invalidate_recordset()
+        self.assertTrue(config.whatsapp_enabled)
+        website.update({"whatsapp_number": False})
+        config.invalidate_recordset()
+        self.assertFalse(config.whatsapp_enabled)
 
     def test_inverse_whatsapp_enabled(self):
-        self.website.invalidate_recordset()
-        self.config.invalidate_recordset()
-        self.config.whatsapp_enabled = False
-        self.assertFalse(self.website.whatsapp_number)
+        config = self._as_admin(self.config)
+        website = self._as_admin(self.website)
+        website.invalidate_recordset()
+        config.invalidate_recordset()
+        config.whatsapp_enabled = False
+        self.assertFalse(website.whatsapp_number)

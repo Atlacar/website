@@ -6,7 +6,11 @@ from odoo.tests import HttpCase, tagged
 @tagged("post_install", "-at_install")
 class TestLayout(HttpCase):
     def test_floating_icon_rendered(self):
-        website = self.env["website"].get_current_website()
+        website = (
+            self.env["website"]
+            .with_user(self.env.ref("base.user_admin"))
+            .search([], limit=1)
+        )
         website.write(
             {
                 "whatsapp_number": "5215512345678",
@@ -20,7 +24,11 @@ class TestLayout(HttpCase):
         self.assertIn("Sent from:", html)
 
     def test_no_icon_without_number(self):
-        website = self.env["website"].get_current_website()
+        website = (
+            self.env["website"]
+            .with_user(self.env.ref("base.user_admin"))
+            .search([], limit=1)
+        )
         website.whatsapp_number = False
         html = self.url_open("/").text
         self.assertNotIn('id="whatsapp_icon"', html)
